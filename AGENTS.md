@@ -184,27 +184,27 @@ Suggested API endpoints:
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/events` | Public | Retrieve upcoming events |
-| GET | `/api/events/recent` | Public | Retrieve six recent upcoming events |
-| GET | `/api/events/:id` | Public | Retrieve event details |
-| POST | `/api/events` | Protected | Create an event |
-| PATCH | `/api/events/:id` | Protected | Update an owned event |
-| DELETE | `/api/events/:id` | Protected | Delete an owned event |
-| GET | `/api/events/my-events` | Protected | Retrieve user's created events |
+| GET | `/api/v1/events` | Public | Retrieve upcoming events |
+| GET | `/api/v1/events/recent` | Public | Retrieve six recent upcoming events |
+| GET | `/api/v1/events/:id` | Public | Retrieve event details |
+| POST | `/api/v1/events` | Protected | Create an event |
+| PATCH | `/api/v1/events/:id` | Protected | Update an owned event |
+| DELETE | `/api/v1/events/:id` | Protected | Delete an owned event |
+| GET | `/api/v1/events/my-events` | Protected | Retrieve user's created events |
 
 ### Participation
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/joins` | Protected | Join an event |
-| GET | `/api/joins/my-events` | Protected | Retrieve joined events |
+| POST | `/api/v1/joins` | Protected | Join an event |
+| GET | `/api/v1/joins/my-events` | Protected | Retrieve joined events |
 
 ### User Profile
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/users/me` | Protected | Retrieve authenticated user profile |
-| PATCH | `/api/users/me` | Protected | Update authenticated user profile |
+| GET | `/api/v1/users/me` | Protected | Retrieve authenticated user profile |
+| PATCH | `/api/v1/users/me` | Protected | Update authenticated user profile |
 
 These endpoints are proposed API contracts. Coordinate with the frontend repository before finalizing route names and response formats.
 

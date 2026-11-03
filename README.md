@@ -115,18 +115,25 @@ Example configuration:
 ```env
 PORT=8000
 NODE_ENV=development
+API_PREFIX=/api/v1
 
 MONGODB_URI=your_mongodb_connection_string
 
-BETTER_AUTH_SECRET=your_auth_secret
+BETTER_AUTH_SECRET=replace_with_output_from_npx_auth_secret
 BETTER_AUTH_URL=http://localhost:8000
 
 CLIENT_URL=http://localhost:3000
+
+# Optional social login; set both values for each provider you enable.
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
 Configure additional variables if required by your authentication provider.
 
-**Security Notice:** Never commit real database credentials, authentication secrets, private keys, or tokens to GitHub.
+**Security Notice:** Never commit real database credentials, authentication secrets, private keys, or tokens to GitHub. Generate `BETTER_AUTH_SECRET` with `npx auth secret`; production requires at least 32 characters. Google and GitHub OAuth are optional; configure both corresponding client ID and secret variables to enable a provider.
 
 ### 5. Run the Development Server
 
@@ -148,7 +155,9 @@ http://localhost:8000
 
 ## 📡 API Endpoints
 
-The following table describes the proposed API contract.
+API routes use the common prefix configured by `API_PREFIX` (default `/api/v1`).
+The endpoint paths below show the default prefix; if `API_PREFIX` is changed,
+replace `/api/v1` with its configured value.
 
 ### Health API
 
@@ -162,33 +171,35 @@ The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping a
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/events` | Public | Get upcoming events |
-| GET | `/api/events/recent` | Public | Get six recent upcoming events |
-| GET | `/api/events/:id` | Public | Get event details |
-| POST | `/api/events` | Protected | Create an event |
-| PATCH | `/api/events/:id` | Protected | Update an event |
-| DELETE | `/api/events/:id` | Protected | Delete an event |
-| GET | `/api/events/my-events` | Protected | Get user's created events |
+| GET | `/api/v1/events` | Public | Get upcoming events |
+| GET | `/api/v1/events/recent` | Public | Get six recent upcoming events |
+| GET | `/api/v1/events/:id` | Public | Get event details |
+| POST | `/api/v1/events` | Protected | Create an event |
+| PATCH | `/api/v1/events/:id` | Protected | Update an event |
+| DELETE | `/api/v1/events/:id` | Protected | Delete an event |
+| GET | `/api/v1/events/my-events` | Protected | Get user's created events |
 
 ### Participation API
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/joins` | Protected | Join an event |
-| GET | `/api/joins/my-events` | Protected | Get joined events |
+| POST | `/api/v1/joins` | Protected | Join an event |
+| GET | `/api/v1/joins/my-events` | Protected | Get joined events |
 
 ### User API
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/users/me` | Protected | Get current user profile |
-| PATCH | `/api/users/me` | Protected | Update current user profile |
+| GET | `/api/v1/users/me` | Protected | Get current user profile |
+| PATCH | `/api/v1/users/me` | Protected | Update current user profile |
 
 *These endpoints represent the intended API design. Update this documentation to match the actual implemented routes and response structures.*
 
 ## 🔐 Authentication & Authorization
 
-The application uses Better Auth for user authentication.
+Better Auth handles authentication using the MongoDB adapter and the `BETTER_AUTH_SECRET` environment variable. Email/password authentication is enabled. The API handler is available under `${API_PREFIX}/auth/*`, and the frontend origin from `CLIENT_URL` is trusted. Session lifetime is seven days, with refresh after one day. Google and GitHub sign-in can be enabled by configuring the matching OAuth client ID and secret.
+
+Common Better Auth endpoints include `POST /api/v1/auth/sign-up/email`, `POST /api/v1/auth/sign-in/email`, `GET /api/v1/auth/get-session`, and `POST /api/v1/auth/sign-out`. Provider login uses `POST /api/v1/auth/sign-in/social` with a configured provider and callback URL. Use `credentials: "include"` from browser clients so the session cookie is sent.
 
 Authentication features include:
 

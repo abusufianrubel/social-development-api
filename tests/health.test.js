@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import mongoose from "mongoose";
-import app from "../src/app.js";
+import app, { createApp } from "../src/app.js";
 
 let server;
+let authServer;
 let baseUrl;
+let authBaseUrl;
 let originalReadyState;
 let originalDbDescriptor;
 
@@ -15,15 +17,41 @@ before(async () => {
     "db"
   );
   server = app.listen(0);
+  const authApp = createApp((req, res) => {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          path: req.url,
+          body: Buffer.concat(chunks).toString(),
+        })
+      );
+    });
+  });
+  authServer = authApp.listen(0);
 
-  await new Promise((resolve) => server.once("listening", resolve));
+  await Promise.all(
+    [server, authServer].map(
+      (listener) =>
+        new Promise((resolve) => listener.once("listening", resolve))
+    )
+  );
   baseUrl = `http://127.0.0.1:${server.address().port}`;
+  authBaseUrl = `http://127.0.0.1:${authServer.address().port}`;
 });
 
 after(async () => {
-  await new Promise((resolve, reject) => {
-    server.close((error) => (error ? reject(error) : resolve()));
-  });
+  await Promise.all(
+    [server, authServer].map(
+      (listener) =>
+        new Promise((resolve, reject) => {
+          listener.close((error) => (error ? reject(error) : resolve()));
+        })
+    )
+  );
 
   mongoose.connection.readyState = originalReadyState;
   if (originalDbDescriptor) {
@@ -97,4 +125,44 @@ test("returns a consistent JSON response for unknown routes", async () => {
     success: false,
     message: "Route not found",
   });
+});
+
+test("forwards Better Auth requests before Express body parsing", async () => {
+  const response = await fetch(`${authBaseUrl}/api/v1/auth/sign-in/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "person@example.com" }),
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.path, "/api/v1/auth/sign-in/email");
+  assert.equal(body.body, JSON.stringify({ email: "person@example.com" }));
+});
+
+test("mounts the API root and auth handler under a custom API prefix", async () => {
+  const customPrefixApp = createApp(
+    (_req, res) => res.status(200).json({ success: true }),
+    "/custom/v2"
+  );
+  const customServer = customPrefixApp.listen(0);
+
+  await new Promise((resolve) => customServer.once("listening", resolve));
+  const customBaseUrl = `http://127.0.0.1:${customServer.address().port}`;
+
+  try {
+    const [rootResponse, authResponse, oldPrefixResponse] = await Promise.all([
+      fetch(`${customBaseUrl}/custom/v2`),
+      fetch(`${customBaseUrl}/custom/v2/auth/check`),
+      fetch(`${customBaseUrl}/api/v1/auth/check`),
+    ]);
+
+    assert.equal(rootResponse.status, 200);
+    assert.equal(authResponse.status, 200);
+    assert.equal(oldPrefixResponse.status, 404);
+  } finally {
+    await new Promise((resolve, reject) => {
+      customServer.close((error) => (error ? reject(error) : resolve()));
+    });
+  }
 });

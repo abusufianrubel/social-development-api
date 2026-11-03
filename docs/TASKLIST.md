@@ -38,7 +38,7 @@ Project: Social Development Events Platform Repository: `social-development-api`
 - [x]Configure connection error handling.
 - [x]Create Events collection.
 - [x]Create Participation collection.
-- [ ]Configure Better Auth database collections.
+- [x]Configure Better Auth database collections.
 - [x]Define event data structure.
 - [x]Define participation data structure.
 - [x]Configure timestamps.
@@ -49,14 +49,14 @@ Project: Social Development Events Platform Repository: `social-development-api`
 ## 4. Authentication — Better Auth
 
 - [x]Install Better Auth.
-- [ ]Configure Better Auth.
-- [ ]Integrate MongoDB adapter.
-- [ ]Configure email/password authentication.
-- [ ]Configure Google or GitHub authentication.
-- [ ]Configure authentication session management.
-- [ ]Configure authentication secret.
-- [ ]Configure trusted frontend origin.
-- [ ]Configure authentication API handler.
+- [x]Configure Better Auth.
+- [x]Integrate MongoDB adapter.
+- [x]Configure email/password authentication.
+- [x]Configure Google or GitHub authentication.
+- [x]Configure authentication session management.
+- [x]Configure authentication secret.
+- [x]Configure trusted frontend origin.
+- [x]Configure authentication API handler.
 - [ ]Test user registration.
 - [ ]Test user login.
 - [ ]Test social authentication.

@@ -392,27 +392,27 @@ Follow RESTful API conventions.
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
-| GET | `/api/events` | Public | Retrieve upcoming events |
-| GET | `/api/events/recent` | Public | Retrieve six recent upcoming events |
-| GET | `/api/events/:id` | Public | Retrieve event details |
-| POST | `/api/events` | Protected | Create event |
-| PATCH | `/api/events/:id` | Protected | Update owned event |
-| DELETE | `/api/events/:id` | Protected | Delete owned event |
-| GET | `/api/events/my-events` | Protected | Retrieve created events |
+| GET | `/api/v1/events` | Public | Retrieve upcoming events |
+| GET | `/api/v1/events/recent` | Public | Retrieve six recent upcoming events |
+| GET | `/api/v1/events/:id` | Public | Retrieve event details |
+| POST | `/api/v1/events` | Protected | Create event |
+| PATCH | `/api/v1/events/:id` | Protected | Update owned event |
+| DELETE | `/api/v1/events/:id` | Protected | Delete owned event |
+| GET | `/api/v1/events/my-events` | Protected | Retrieve created events |
 
 ### 9.2 Participation API
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
-| POST | `/api/joins` | Protected | Join an event |
-| GET | `/api/joins/my-events` | Protected | Retrieve joined events |
+| POST | `/api/v1/joins` | Protected | Join an event |
+| GET | `/api/v1/joins/my-events` | Protected | Retrieve joined events |
 
 ### 9.3 User API
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
-| GET | `/api/users/me` | Protected | Retrieve current profile |
-| PATCH | `/api/users/me` | Protected | Update current profile |
+| GET | `/api/v1/users/me` | Protected | Retrieve current profile |
+| PATCH | `/api/v1/users/me` | Protected | Update current profile |
 
 These endpoints represent the proposed API contract. Final endpoint names and response formats must match the actual implementation and frontend integration.
 
