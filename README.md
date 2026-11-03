@@ -113,13 +113,13 @@ Create a `.env` file in the root directory.
 Example configuration:
 
 ```env
-PORT=5000
+PORT=8000
 NODE_ENV=development
 
 MONGODB_URI=your_mongodb_connection_string
 
 BETTER_AUTH_SECRET=your_auth_secret
-BETTER_AUTH_URL=http://localhost:5000
+BETTER_AUTH_URL=http://localhost:8000
 
 CLIENT_URL=http://localhost:3000
 ```
@@ -143,12 +143,20 @@ If a development script is not configured, add one appropriate to the existing p
 The local API server should be available at:
 
 ```text
-http://localhost:5000
+http://localhost:8000
 ```
 
 ## 📡 API Endpoints
 
 The following table describes the proposed API contract.
+
+### Health API
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/v1/health` | Public | Report service health, uptime, timestamp, and MongoDB dependency health |
+
+The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping and HTTP `503` when the dependency is unavailable. Its JSON response includes an overall `status` (`healthy` or `unhealthy`), service name, ISO-8601 `timestamp`, process `uptime` in seconds, and per-dependency status. It does not expose connection details or error messages.
 
 ### Events API
 

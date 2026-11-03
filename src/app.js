@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import healthRouter from "./routes/health.routes.js";
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use(
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/v1", healthRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({
