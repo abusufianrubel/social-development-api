@@ -1,16 +1,316 @@
-# Getting Started with GitHub Copilot
 
-<img src="https://octodex.github.com/images/Professortocat_v2.png" align="right" height="200px" />
+# 🌱 Social Development Events Platform — Backend
 
-Hey @Rubel-CSTE!
+A RESTful backend application for a community-driven social development events platform. It provides APIs for event management, user participation, authentication, and profile management.
 
-Mona here. I'm done preparing your exercise. Hope you enjoy! 💚
+The platform helps people discover, organize, and participate in meaningful community service activities.
 
-Remember, it's self-paced so feel free to take a break! ☕️
+## 📖 About The Project
 
-[![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/Rubel-CSTE/skills-getting-started-with-github-copilot/issues/1)
+Social Development Events Platform is designed to connect volunteers and community organizers through a centralized event management system.
 
----
+Users can create community service events, explore upcoming initiatives, join events, and manage their own activities.
 
-&copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+Examples of community activities:
 
+- Winter Clothes Distribution
+- Blanket Distribution for Needy People
+- Tree Plantation Campaigns
+- Neighborhood Cleanup Programs
+- Blood Donation Campaigns
+- Community Support Activities
+
+This repository contains the backend API responsible for managing application data, authentication, authorization, and business logic.
+
+## ✨ Key Features
+
+- **Authentication:** Email and password authentication with Better Auth.
+- **Social Login:** Google or GitHub authentication integration.
+- **JWT Authorization:** Secure API access using JWT-based authentication.
+- **Event Creation:** Authenticated users can create community service events.
+- **Event Discovery:** Retrieve upcoming events dynamically.
+- **Event Details:** Fetch individual event information.
+- **Join Events:** Authenticated users can participate in community events.
+- **Manage Events:** Event creators can update and delete their own events.
+- **Joined Events:** Retrieve events joined by authenticated users.
+- **Profile Management:** Retrieve and update user profile information.
+- **Data Validation:** Validate incoming API requests.
+- **Error Handling:** Consistent API error responses.
+
+## 🛠️ Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Node.js | JavaScript runtime |
+| Express.js | REST API framework |
+| MongoDB | Database |
+| Better Auth | Authentication |
+| MongoDB Adapter | Authentication data storage |
+| JWT | API authentication |
+| JavaScript / TypeScript | Backend development |
+
+## 📁 Project Structure
+
+```text
+social-development-api/
+│
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── validators/
+│   ├── utils/
+│   ├── app.js
+│   └── server.js
+│
+├── .env.example
+├── .gitignore
+├── package.json
+├── AGENTS.md
+└── README.md
+```
+
+*The project structure may evolve during development.*
+
+## 🚀 Getting Started
+
+Follow these instructions to run the backend application locally.
+
+### Prerequisites
+
+Make sure you have installed:
+
+- Node.js (LTS recommended)
+- npm
+- MongoDB database
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone YOUR_BACKEND_REPOSITORY_URL
+```
+
+### 2. Navigate to the Project Directory
+
+```bash
+cd social-development-api
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env` file in the root directory.
+
+Example configuration:
+
+```env
+PORT=5000
+NODE_ENV=development
+
+MONGODB_URI=your_mongodb_connection_string
+
+BETTER_AUTH_SECRET=your_auth_secret
+BETTER_AUTH_URL=http://localhost:5000
+
+CLIENT_URL=http://localhost:3000
+```
+
+Configure additional variables if required by your authentication provider.
+
+**Security Notice:** Never commit real database credentials, authentication secrets, private keys, or tokens to GitHub.
+
+### 5. Run the Development Server
+
+Use the development command configured in your `package.json`.
+
+For example:
+
+```bash
+npm run dev
+```
+
+If a development script is not configured, add one appropriate to the existing project setup.
+
+The local API server should be available at:
+
+```text
+http://localhost:5000
+```
+
+## 📡 API Endpoints
+
+The following table describes the proposed API contract.
+
+### Events API
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/events` | Public | Get upcoming events |
+| GET | `/api/events/recent` | Public | Get six recent upcoming events |
+| GET | `/api/events/:id` | Public | Get event details |
+| POST | `/api/events` | Protected | Create an event |
+| PATCH | `/api/events/:id` | Protected | Update an event |
+| DELETE | `/api/events/:id` | Protected | Delete an event |
+| GET | `/api/events/my-events` | Protected | Get user's created events |
+
+### Participation API
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/api/joins` | Protected | Join an event |
+| GET | `/api/joins/my-events` | Protected | Get joined events |
+
+### User API
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/users/me` | Protected | Get current user profile |
+| PATCH | `/api/users/me` | Protected | Update current user profile |
+
+*These endpoints represent the intended API design. Update this documentation to match the actual implemented routes and response structures.*
+
+## 🔐 Authentication & Authorization
+
+The application uses Better Auth for user authentication.
+
+Authentication features include:
+
+- Email and password authentication.
+- Google or GitHub social authentication.
+- MongoDB adapter integration.
+- JWT-based API authentication.
+- Protected API routes.
+- User identity verification.
+- Event ownership validation.
+
+Protected operations require valid authentication.
+
+Important security rules:
+
+- Never trust user IDs or emails supplied directly by clients.
+- Verify authenticated user identity on the server.
+- Only event creators can update or delete their own events.
+- Prevent duplicate event participation.
+- Validate authentication credentials or tokens before protected operations.
+
+## 🗄️ Database Management
+
+MongoDB is used to store application data.
+
+Main data entities:
+
+- Users and authentication records.
+- Community events.
+- Event participation records.
+
+Event records should contain the event title, description, category, image URL, location, event date, creator information, and timestamps.
+
+Participation records should associate an authenticated user with an event.
+
+Use appropriate indexes to improve query performance and prevent duplicate participation.
+
+## ⚠️ Error Handling
+
+The API should return consistent JSON responses.
+
+Example successful response:
+
+```json
+{
+  "success": true,
+  "message": "Event created successfully",
+  "data": {}
+}
+```
+
+Example error response:
+
+```json
+{
+  "success": false,
+  "message": "Event not found"
+}
+```
+
+Common HTTP status codes:
+
+| Status | Description |
+|---|---|
+| 200 | Successful request |
+| 201 | Resource created |
+| 400 | Invalid request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Resource not found |
+| 409 | Duplicate resource |
+| 500 | Internal server error |
+
+## 🧪 Testing
+
+Before deployment, verify:
+
+- MongoDB connection.
+- Authentication functionality.
+- JWT validation.
+- Public and protected API access.
+- Event creation and retrieval.
+- Upcoming event filtering.
+- Event update and deletion.
+- Event ownership authorization.
+- Event joining.
+- Duplicate participation prevention.
+- Joined events retrieval.
+- Profile management.
+- Request validation.
+- Error handling.
+
+## 🚢 Deployment
+
+The backend can be deployed using platforms such as:
+
+- Render
+- Railway
+- Other compatible Node.js hosting platforms
+
+Before deployment:
+
+1. Configure production environment variables.
+2. Connect the production MongoDB database.
+3. Configure authentication URLs and secrets.
+4. Configure the frontend origin in CORS.
+5. Verify all API endpoints.
+6. Test authentication and authorization.
+7. Check production logs for errors.
+
+**Live API URL:** [Add Your Deployed Backend URL]
+
+## 🔗 Related Repository
+
+**Frontend Repository:** `social-development-web`
+
+The frontend application is developed separately using Next.js and communicates with this backend through REST APIs.
+
+**Frontend GitHub:** [Add Frontend Repository URL]
+
+## 👨‍💻 Developer
+
+**Project:** Social Development Events Platform
+
+**Repository:** social-development-api
+
+**Assignment:** Web Development
+
+**Backend:** Node.js, Express.js, MongoDB
+
+## 📄 License
+
+This project was developed for educational purposes as part of a Web Development assignment.
