@@ -87,3 +87,14 @@ test("returns service unavailable when MongoDB ping fails", async () => {
   assert.equal(body.dependencies.mongodb.status, "unhealthy");
   assert.equal(JSON.stringify(body).includes("credentials"), false);
 });
+
+test("returns a consistent JSON response for unknown routes", async () => {
+  const response = await fetch(`${baseUrl}/api/v1/not-found`);
+  const body = await response.json();
+
+  assert.equal(response.status, 404);
+  assert.deepEqual(body, {
+    success: false,
+    message: "Route not found",
+  });
+});

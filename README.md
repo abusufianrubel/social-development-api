@@ -224,7 +224,7 @@ Event records should contain the event title, description, category, image URL, 
 
 Participation records should associate an authenticated user with an event.
 
-Use appropriate indexes to improve query performance and prevent duplicate participation.
+The application initializes its event and participation collections and indexes during startup. Event and participation documents use Mongoose timestamps. A unique compound index on `eventId` and `userId` prevents duplicate participation; lookup indexes support event date, creator, type, location, and participant queries. Better Auth user and session collections must be configured through its MongoDB adapter and are not represented by custom Mongoose models.
 
 ## ⚠️ Error Handling
 
