@@ -111,11 +111,17 @@ export const createEventService = (
       throw createHttpError(400, "Event date must be in the future");
     }
 
-    return EventModel.findByIdAndUpdate(
-      eventId,
+    const updatedEvent = await EventModel.findOneAndUpdate(
+      { _id: eventId, creatorId: authenticatedUser.id },
       { $set: { ...updateData, updatedAt: new Date() } },
       { new: true, runValidators: true }
     ).lean();
+
+    if (!updatedEvent) {
+      throw createHttpError(404, "Event not found");
+    }
+
+    return updatedEvent;
   },
 
   async deleteEvent(eventId, authenticatedUser) {
