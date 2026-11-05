@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { createApp } from "../src/app.js";
 import { createEventService } from "../src/services/event.service.js";
 
 test("upcoming events query excludes past events and applies pagination and filters", async () => {
@@ -63,4 +64,38 @@ test("event details reject malformed IDs and return 404 for missing events", asy
     service.getEventById("507f1f77bcf86cd799439011"),
     { statusCode: 404, message: "Event not found" }
   );
+});
+
+test("event retrieval endpoints are public and return the documented response shape", async (t) => {
+  const sampleEvent = { _id: "507f1f77bcf86cd799439011", title: "Park Cleanup" };
+  const eventService = {
+    async getUpcomingEvents(query) {
+      assert.equal(query.page, 1);
+      return { events: [sampleEvent], pagination: { page: 1, limit: 12, total: 1, totalPages: 1 } };
+    },
+    async getRecentUpcomingEvents() { return [sampleEvent]; },
+    async getEventById(id) { assert.equal(id, sampleEvent._id); return sampleEvent; },
+  };
+  const app = createApp(undefined, "/api/v1", {
+    authenticate(_req, res) { res.sendStatus(401); },
+    eventService,
+  });
+  const server = app.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  t.after(() => new Promise((resolve, reject) =>
+    server.close((error) => error ? reject(error) : resolve())
+  ));
+  const baseUrl = `http://127.0.0.1:${server.address().port}/api/v1`;
+
+  for (const [path, expected] of [
+    ["/events", "upcoming events retrieved successfully"],
+    ["/events/recent", "recent upcoming events retrieved successfully"],
+    [`/events/${sampleEvent._id}`, "event retrieved successfully"],
+  ]) {
+    const response = await fetch(`${baseUrl}${path}`);
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(body.success, true);
+    assert.equal(body.message, expected);
+  }
 });

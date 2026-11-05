@@ -102,7 +102,7 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.2 Get Upcoming Events
 
-- [x]Implement `GET /api/events`.
+- [x]Implement `GET /api/v1/events`.
 - [x]Retrieve events from MongoDB.
 - [x]Filter out past events.
 - [x]Sort events by nearest date.
@@ -114,7 +114,7 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.3 Get Recent Upcoming Events
 
-- [x]Implement `GET /api/events/recent`.
+- [x]Implement `GET /api/v1/events/recent`.
 - [x]Retrieve upcoming events only.
 - [x]Sort by event date ascending.
 - [x]Apply MongoDB `.limit(6)`.
@@ -123,7 +123,7 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.4 Get Event Details
 
-- [x]Implement `GET /api/events/:id`.
+- [x]Implement `GET /api/v1/events/:id`.
 - [x]Validate MongoDB ObjectId.
 - [x]Retrieve event by ID.
 - [x]Return complete event information.
@@ -186,7 +186,7 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ## 8. User-Created Events
 
-- [ ]Implement `GET /api/events/my-events`.
+- [ ]Implement `GET /api/v1/events/my-events`.
 - [ ]Retrieve authenticated user identity.
 - [ ]Find events created by the current user.
 - [ ]Sort created events.
@@ -289,9 +289,9 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 - [x]Test missing required fields.
 - [x]Test invalid event date.
 - [x]Test past event rejection.
-- [x]Test upcoming event retrieval.
-- [x]Test recent six-event retrieval.
-- [x]Test event details.
+- [ ]Test upcoming event retrieval.
+- [ ]Test recent six-event retrieval.
+- [ ]Test event details.
 - [ ]Test event update.
 - [ ]Test event deletion.
 - [ ]Test event ownership.
