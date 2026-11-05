@@ -12,18 +12,19 @@ test("event update permits the owner and writes updatedAt", async () => {
   let update;
   const model = {
     findById: () => ({ lean: async () => ({ _id: validId, creatorId: user.id }) }),
-    findByIdAndUpdate: (id, value, options) => {
-      updateFilter = id;
+    findOneAndUpdate: (filter, value, options) => {
+      updateFilter = filter;
       update = value;
+      assert.deepEqual(filter, { _id: validId, creatorId: user.id });
       assert.equal(options.new, true);
       assert.equal(options.runValidators, true);
-      return { lean: async () => ({ _id: id, ...value.$set }) };
+      return { lean: async () => ({ _id: validId, ...value.$set }) };
     },
   };
   const result = await createEventService(model).updateEvent(
     validId, { title: "Updated title" }, user
   );
-  assert.equal(updateFilter, validId);
+  assert.deepEqual(updateFilter, { _id: validId, creatorId: user.id });
   assert.equal(update.$set.title, "Updated title");
   assert.ok(update.$set.updatedAt instanceof Date);
   assert.equal(result.title, "Updated title");
