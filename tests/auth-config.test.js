@@ -51,6 +51,48 @@ test("requires both credentials when an OAuth provider is partially configured",
   );
 });
 
+test("returns a Google authorization URL when Google OAuth is configured", async () => {
+  const auth = createAuth(
+    { collection() {} },
+    {
+      ...validEnvironment,
+      GOOGLE_CLIENT_ID: "google-test-client-id",
+      GOOGLE_CLIENT_SECRET: "google-test-client-secret",
+    }
+  );
+
+  const response = await auth.handler(
+    new Request(
+      "http://localhost:8000/api/v1/auth/sign-in/social",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "http://localhost:3000",
+        },
+        body: JSON.stringify({
+          provider: "google",
+          callbackURL: "http://localhost:3000/auth/callback",
+          disableRedirect: true,
+        }),
+      }
+    )
+  );
+
+  assert.equal(response.status, 200);
+
+  const result = await response.json();
+  assert.equal(result.redirect, false);
+  assert.equal(typeof result.url, "string");
+
+  const authorizationUrl = new URL(result.url);
+  assert.equal(authorizationUrl.hostname, "accounts.google.com");
+  assert.equal(
+    authorizationUrl.searchParams.get("client_id"),
+    "google-test-client-id"
+  );
+});
+
 test("normalizes and validates the common API prefix", () => {
   assert.equal(resolveApiPrefix({ API_PREFIX: "/api/v1/" }), "/api/v1");
   assert.throws(

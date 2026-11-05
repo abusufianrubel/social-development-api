@@ -59,7 +59,7 @@ Project: Social Development Events Platform Repository: `social-development-api`
 - [x]Configure authentication API handler.
 - [ ]Test user registration.
 - [ ]Test user login.
-- [ ]Test social authentication.
+- [ ]Test social authentication with real provider credentials.
 - [ ]Test session management.
 
 ## 5. JWT Authentication & Authorization
@@ -277,11 +277,12 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 - [ ]Test registration.
 - [ ]Test login.
-- [ ]Test social login.
-- [x]Test valid JWT.
-- [x]Test invalid JWT.
-- [x]Test expired JWT.
-- [x]Test protected endpoints.
+- [ ]Test social login using live Google OAuth credentials.
+- [ ]Test JWT valid.
+- [ ]Test JWT invalid.
+- [ ]Test JWT expired.
+- [ ]Test protected endpoints.
+- [x]Add automated test for Google OAuth authorization URL generation (execution pending).
 
 ### Event Testing
 
