@@ -102,33 +102,33 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.2 Get Upcoming Events
 
-- [ ]Implement `GET /api/events`.
-- [ ]Retrieve events from MongoDB.
-- [ ]Filter out past events.
-- [ ]Sort events by nearest date.
-- [ ]Implement pagination.
-- [ ]Implement event type filtering.
-- [ ]Implement location filtering.
-- [ ]Implement event search.
-- [ ]Return pagination metadata.
+- [x]Implement `GET /api/events`.
+- [x]Retrieve events from MongoDB.
+- [x]Filter out past events.
+- [x]Sort events by nearest date.
+- [x]Implement pagination.
+- [x]Implement event type filtering.
+- [x]Implement location filtering.
+- [x]Implement event search.
+- [x]Return pagination metadata.
 
 ### 6.3 Get Recent Upcoming Events
 
-- [ ]Implement `GET /api/events/recent`.
-- [ ]Retrieve upcoming events only.
-- [ ]Sort by event date ascending.
-- [ ]Apply MongoDB `.limit(6)`.
-- [ ]Return maximum six events.
-- [ ]Test empty database response.
+- [x]Implement `GET /api/events/recent`.
+- [x]Retrieve upcoming events only.
+- [x]Sort by event date ascending.
+- [x]Apply MongoDB `.limit(6)`.
+- [x]Return maximum six events.
+- [x]Test empty database response.
 
 ### 6.4 Get Event Details
 
-- [ ]Implement `GET /api/events/:id`.
-- [ ]Validate MongoDB ObjectId.
-- [ ]Retrieve event by ID.
-- [ ]Return complete event information.
-- [ ]Handle event not found.
-- [ ]Keep endpoint publicly accessible.
+- [x]Implement `GET /api/events/:id`.
+- [x]Validate MongoDB ObjectId.
+- [x]Retrieve event by ID.
+- [x]Return complete event information.
+- [x]Handle event not found.
+- [x]Keep endpoint publicly accessible.
 
 ### 6.5 Update Event
 
@@ -289,9 +289,9 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 - [x]Test missing required fields.
 - [x]Test invalid event date.
 - [x]Test past event rejection.
-- [ ]Test upcoming event retrieval.
-- [ ]Test recent six-event retrieval.
-- [ ]Test event details.
+- [x]Test upcoming event retrieval.
+- [x]Test recent six-event retrieval.
+- [x]Test event details.
 - [ ]Test event update.
 - [ ]Test event deletion.
 - [ ]Test event ownership.

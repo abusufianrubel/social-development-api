@@ -1,14 +1,37 @@
 import { Router } from "express";
-import { createEventController } from "../controllers/event.controller.js";
-import { validateBody } from "../middleware/validate.middleware.js";
+import {
+  createEventController,
+  getEventByIdController,
+  getRecentUpcomingEventsController,
+  getUpcomingEventsController,
+} from "../controllers/event.controller.js";
+import {
+  validateBody,
+  validateQuery,
+} from "../middleware/validate.middleware.js";
 import { createEventService } from "../services/event.service.js";
-import { createEventSchema } from "../validators/event.validator.js";
+import {
+  createEventSchema,
+  upcomingEventsQuerySchema,
+} from "../validators/event.validator.js";
 
 const createEventRouter = (
   authenticate,
   eventService = createEventService()
 ) => {
   const router = Router();
+
+  // Public read endpoints must be registered before parameterized routes.
+  router.get(
+    "/events/recent",
+    getRecentUpcomingEventsController(eventService)
+  );
+  router.get(
+    "/events",
+    validateQuery(upcomingEventsQuerySchema),
+    getUpcomingEventsController(eventService)
+  );
+  router.get("/events/:id", getEventByIdController(eventService));
 
   router.post(
     "/events",

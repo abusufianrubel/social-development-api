@@ -29,3 +29,15 @@ export const createEventSchema = z
     eventDate: futureDate,
   })
   .strict();
+
+const optionalSearchText = z.string().trim().min(1).max(100).optional();
+
+export const upcomingEventsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(12),
+    eventType: optionalSearchText,
+    location: optionalSearchText,
+    search: optionalSearchText,
+  })
+  .strict();
