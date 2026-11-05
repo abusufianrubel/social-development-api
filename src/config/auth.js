@@ -58,6 +58,16 @@ export const createAuth = (database, env = process.env) => {
     basePath: `${resolveApiPrefix(env)}/auth`,
     secret: env.BETTER_AUTH_SECRET,
     trustedOrigins: [env.CLIENT_URL],
+    // The frontend and API may be deployed on different origins.
+    // SameSite=None is required for credentialed cross-site fetches;
+    // Secure is mandatory with SameSite=None and is enabled only in production.
+    advanced: {
+      defaultCookieAttributes: {
+        httpOnly: true,
+        sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+        secure: env.NODE_ENV === "production",
+      },
+    },
     database: mongodbAdapter(database, {
       client: database.client,
     }),
