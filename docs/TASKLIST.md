@@ -198,21 +198,21 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 9.1 Get Profile
 
-- [ ]Implement `GET /api/users/me`.
-- [ ]Verify authentication.
-- [ ]Retrieve current user profile.
-- [ ]Return profile information.
-- [ ]Handle missing user.
+- [x]Implement `GET /api/v1/users/me`.
+- [x]Verify authentication.
+- [x]Retrieve current user profile from the Better Auth user collection.
+- [x]Return profile information without exposing authentication secrets.
+- [x]Handle missing user.
 
 ### 9.2 Update Profile
 
-- [ ]Implement `PATCH /api/users/me`.
-- [ ]Verify authentication.
-- [ ]Validate display name.
-- [ ]Validate profile image URL.
-- [ ]Update allowed profile fields.
-- [ ]Prevent modification of protected authentication fields.
-- [ ]Return updated profile.
+- [x]Implement `PATCH /api/v1/users/me`.
+- [x]Verify authentication.
+- [x]Validate display name.
+- [x]Validate profile image URL.
+- [x]Update allowed profile fields.
+- [x]Prevent modification of protected authentication fields using strict request validation.
+- [x]Return updated profile.
 
 ## 10. Request Validation
 
