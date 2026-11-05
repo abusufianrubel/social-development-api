@@ -15,7 +15,7 @@ import createJoinRouter from "./routes/join.routes.js";
 export const createApp = (
   authHandler,
   apiPrefix = resolveApiPrefix(),
-  { authenticate, eventService, participationService } = {}
+  { authenticate, userService, eventService, participationService } = {}
 ) => {
   const app = express();
 
@@ -39,7 +39,7 @@ export const createApp = (
   app.use(apiPrefix, healthRouter);
 
   if (authenticate) {
-    app.use(apiPrefix, createUserRouter(authenticate));
+    app.use(apiPrefix, createUserRouter(authenticate, userService));
     app.use(apiPrefix, createEventRouter(authenticate, eventService));
     app.use(apiPrefix, createJoinRouter(authenticate, participationService));
   }
