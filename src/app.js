@@ -10,11 +10,12 @@ import { sendSuccess } from "./utils/api-response.js";
 import { resolveApiPrefix } from "./config/api-prefix.js";
 import createUserRouter from "./routes/user.routes.js";
 import createEventRouter from "./routes/event.routes.js";
+import createJoinRouter from "./routes/join.routes.js";
 
 export const createApp = (
   authHandler,
   apiPrefix = resolveApiPrefix(),
-  { authenticate, eventService } = {}
+  { authenticate, eventService, participationService } = {}
 ) => {
   const app = express();
 
@@ -40,6 +41,7 @@ export const createApp = (
   if (authenticate) {
     app.use(apiPrefix, createUserRouter(authenticate));
     app.use(apiPrefix, createEventRouter(authenticate, eventService));
+    app.use(apiPrefix, createJoinRouter(authenticate, participationService));
   }
 
   app.get(apiPrefix, (_req, res) =>

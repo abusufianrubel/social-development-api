@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Event from "../models/event.model.js";
+import Participation from "../models/participation.model.js";
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -9,7 +10,22 @@ const createHttpError = (statusCode, message) => {
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const createEventService = (EventModel = Event) => ({
+const assertValidEventId = (eventId) => {
+  if (!mongoose.isValidObjectId(eventId)) {
+    throw createHttpError(400, "Invalid event ID");
+  }
+};
+
+const assertAuthenticatedUser = (user) => {
+  if (!user?.id) {
+    throw createHttpError(401, "Authentication required");
+  }
+};
+
+export const createEventService = (
+  EventModel = Event,
+  ParticipationModel = Participation
+) => ({
   async createEvent(eventData, authenticatedUser) {
     if (!authenticatedUser?.id || !authenticatedUser?.email) {
       throw createHttpError(401, "Authenticated user email is required");
@@ -32,8 +48,7 @@ export const createEventService = (EventModel = Event) => ({
   async getUpcomingEvents(filters = {}) {
     const page = filters.page ?? 1;
     const limit = filters.limit ?? 12;
-    const now = new Date();
-    const query = { eventDate: { $gt: now } };
+    const query = { eventDate: { $gt: new Date() } };
 
     if (filters.eventType) query.eventType = filters.eventType;
     if (filters.location) {
@@ -72,12 +87,91 @@ export const createEventService = (EventModel = Event) => ({
   },
 
   async getEventById(eventId) {
-    if (!mongoose.isValidObjectId(eventId)) {
-      throw createHttpError(400, "Invalid event ID");
-    }
-
+    assertValidEventId(eventId);
     const event = await EventModel.findById(eventId).lean();
     if (!event) throw createHttpError(404, "Event not found");
     return event;
+  },
+
+  async updateEvent(eventId, updateData, authenticatedUser) {
+    assertAuthenticatedUser(authenticatedUser);
+    assertValidEventId(eventId);
+
+    const existingEvent = await EventModel.findById(eventId).lean();
+    if (!existingEvent) throw createHttpError(404, "Event not found");
+    if (existingEvent.creatorId !== authenticatedUser.id) {
+      throw createHttpError(403, "You are not allowed to update this event");
+    }
+
+    if (
+      updateData.eventDate !== undefined &&
+      (!(updateData.eventDate instanceof Date) ||
+        updateData.eventDate <= new Date())
+    ) {
+      throw createHttpError(400, "Event date must be in the future");
+    }
+
+    return EventModel.findByIdAndUpdate(
+      eventId,
+      { $set: { ...updateData, updatedAt: new Date() } },
+      { new: true, runValidators: true }
+    ).lean();
+  },
+
+  async deleteEvent(eventId, authenticatedUser) {
+    assertAuthenticatedUser(authenticatedUser);
+    assertValidEventId(eventId);
+
+    const existingEvent = await EventModel.findById(eventId).lean();
+    if (!existingEvent) throw createHttpError(404, "Event not found");
+    if (existingEvent.creatorId !== authenticatedUser.id) {
+      throw createHttpError(403, "You are not allowed to delete this event");
+    }
+
+    const session = await EventModel.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const deletedEvent = await EventModel.findOneAndDelete({
+          _id: eventId,
+          creatorId: authenticatedUser.id,
+        }).session(session);
+
+        if (!deletedEvent) {
+          throw createHttpError(404, "Event not found");
+        }
+
+        await ParticipationModel.deleteMany({ eventId }).session(session);
+      });
+    } finally {
+      await session.endSession();
+    }
+
+    return { eventId, deleted: true };
+  },
+
+  async getMyEvents(authenticatedUser, filters = {}) {
+    assertAuthenticatedUser(authenticatedUser);
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 12;
+    const query = { creatorId: authenticatedUser.id };
+
+    const [events, total] = await Promise.all([
+      EventModel.find(query)
+        .sort({ eventDate: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      EventModel.countDocuments(query),
+    ]);
+
+    return {
+      events,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 });
