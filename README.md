@@ -121,6 +121,10 @@ MONGODB_URI=your_mongodb_connection_string
 
 BETTER_AUTH_SECRET=replace_with_output_from_npx_auth_secret
 BETTER_AUTH_URL=http://localhost:8000
+BETTER_AUTH_JWT_ISSUER=http://localhost:8000
+BETTER_AUTH_JWT_AUDIENCE=http://localhost:8000
+# Optional override; defaults to BETTER_AUTH_URL + API_PREFIX + /auth/jwks.
+BETTER_AUTH_JWKS_URL=
 
 CLIENT_URL=http://localhost:3000
 
@@ -190,26 +194,34 @@ The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping a
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/api/v1/users/me` | Protected | Get current user profile |
-| PATCH | `/api/v1/users/me` | Protected | Update current user profile |
+| GET | `/api/v1/users/me` | Bearer JWT | Return the verified caller identity (implemented) |
+| PATCH | `/api/v1/users/me` | Bearer JWT | Update current user profile (planned) |
 
-*These endpoints represent the intended API design. Update this documentation to match the actual implemented routes and response structures.*
+The Events, Participation, and profile-update endpoints above are proposed and are not implemented yet.
 
 ## 🔐 Authentication & Authorization
 
 Better Auth handles authentication using the MongoDB adapter and the `BETTER_AUTH_SECRET` environment variable. Email/password authentication is enabled. The API handler is available under `${API_PREFIX}/auth/*`, and the frontend origin from `CLIENT_URL` is trusted. Session lifetime is seven days, with refresh after one day. Google and GitHub sign-in can be enabled by configuring the matching OAuth client ID and secret.
 
-Common Better Auth endpoints include `POST /api/v1/auth/sign-up/email`, `POST /api/v1/auth/sign-in/email`, `GET /api/v1/auth/get-session`, and `POST /api/v1/auth/sign-out`. Provider login uses `POST /api/v1/auth/sign-in/social` with a configured provider and callback URL. Use `credentials: "include"` from browser clients so the session cookie is sent.
+The Better Auth JWT plugin is configured to issue 15-minute EdDSA-signed JWTs. Its public signing keys are served at `${API_PREFIX}/auth/jwks`; after Better Auth sign-in, request `${API_PREFIX}/auth/token` with the Better Auth session cookie to obtain an API JWT. Express protected routes accept only `Authorization: Bearer <JWT>` and validate the signature against the configured JWKS, `exp`, `iss`, `aud`, and `sub`. A Better Auth session cookie is not itself accepted as an API bearer token.
+
+The JWT issuer and audience default to `BETTER_AUTH_URL`. Set `BETTER_AUTH_JWT_ISSUER` or `BETTER_AUTH_JWT_AUDIENCE` only when the JWT issuer/audience is configured to the same values in Better Auth. `BETTER_AUTH_JWKS_URL` can override the computed JWKS URL and must point to the Better Auth public key set. Production auth and JWKS URLs must use HTTPS.
+
+Common Better Auth endpoints include `POST /api/v1/auth/sign-up/email`, `POST /api/v1/auth/sign-in/email`, `GET /api/v1/auth/get-session`, `GET /api/v1/auth/token`, and `POST /api/v1/auth/sign-out`. Provider login uses `POST /api/v1/auth/sign-in/social` with a configured provider and callback URL. Use `credentials: "include"` from browser clients for Better Auth cookie-based sign-in/token exchange; send the returned JWT as a bearer token when calling protected Express APIs.
+
+### Postman JWT verification
+
+Import [`docs/postman/better-auth-jwt.postman_collection.json`](./docs/postman/better-auth-jwt.postman_collection.json), set its `email` and `password` collection variables to a test account, and run requests 1–4 in order. Postman retains the Better Auth session cookie after sign-in; request 2 exchanges it for a JWT and saves the token to the `jwt` collection variable. Request 3 calls the protected `/users/me` route, and request 4 confirms a missing bearer token is rejected. The JWT expires after 15 minutes; repeat requests 1–2 to refresh it.
 
 Authentication features include:
 
 - Email and password authentication.
 - Google or GitHub social authentication.
 - MongoDB adapter integration.
-- JWT-based API authentication.
-- Protected API routes.
-- User identity verification.
-- Event ownership validation.
+- JWT-based API authentication through Better Auth's JWKS.
+- Protected API route `GET /api/v1/users/me`.
+- Verified user identity taken from the JWT subject, never a request body.
+- Reusable resource-owner middleware for routes that load an owned resource.
 
 Protected operations require valid authentication.
 
@@ -217,7 +229,7 @@ Important security rules:
 
 - Never trust user IDs or emails supplied directly by clients.
 - Verify authenticated user identity on the server.
-- Only event creators can update or delete their own events.
+- When adding resource routes, resolve the resource on the server and apply `requireResourceOwner` before update or deletion; never use a client-supplied owner ID as authorization evidence. The repository currently does not implement event CRUD routes.
 - Prevent duplicate event participation.
 - Validate authentication credentials or tokens before protected operations.
 

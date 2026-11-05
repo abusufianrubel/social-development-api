@@ -1,0 +1,100 @@
+{
+  "info": {
+    "_postman_id": "62d5c887-4a37-4ce0-9814-6fb40e026517",
+    "name": "Social Development API - Better Auth JWT",
+    "description": "Sign in through Better Auth, exchange the session cookie for a JWT, and call the protected API with that JWT.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "apiPrefix", "value": "/api/v1" },
+    { "key": "email", "value": "replace-with-a-test-user@example.com" },
+    { "key": "password", "value": "replace-with-test-password" },
+    { "key": "jwt", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Sign in with Better Auth",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}{{apiPrefix}}/auth/sign-in/email"
+      }
+    },
+    {
+      "name": "2. Exchange Better Auth session for JWT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('JWT was returned', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('jwt', body.token);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}{{apiPrefix}}/auth/token"
+      }
+    },
+    {
+      "name": "3. Call protected current-user endpoint",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('JWT identifies the authenticated user', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().data.user.id).to.be.a('string');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt}}" }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/users/me"
+      }
+    },
+    {
+      "name": "4. Confirm protected endpoint rejects missing bearer token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Request without bearer token is unauthorized', function () {",
+              "  pm.response.to.have.status(401);",
+              "  pm.expect(pm.response.json().success).to.eql(false);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}{{apiPrefix}}/users/me"
+      }
+    }
+  ]
+}

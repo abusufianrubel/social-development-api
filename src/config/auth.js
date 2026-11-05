@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { jwt } from "better-auth/plugins";
 import { resolveApiPrefix } from "./api-prefix.js";
+import { resolveJwtConfiguration } from "./jwt.js";
 
 const getSocialProviders = (env) => {
   const providers = {};
@@ -48,6 +50,8 @@ export const createAuth = (database, env = process.env) => {
     throw new Error("CLIENT_URL must be configured");
   }
 
+  const jwtConfiguration = resolveJwtConfiguration(env);
+
   return betterAuth({
     appName: "Social Development API",
     baseURL: env.BETTER_AUTH_URL,
@@ -61,6 +65,18 @@ export const createAuth = (database, env = process.env) => {
       enabled: true,
     },
     socialProviders: getSocialProviders(env),
+    plugins: [
+      jwt({
+        jwks: {
+          keyPairConfig: { alg: "EdDSA", crv: "Ed25519" },
+        },
+        jwt: {
+          issuer: jwtConfiguration.issuer,
+          audience: jwtConfiguration.audience,
+          expirationTime: "15m",
+        },
+      }),
+    ],
     session: {
       expiresIn: 60 * 60 * 24 * 7,
       updateAge: 60 * 60 * 24,

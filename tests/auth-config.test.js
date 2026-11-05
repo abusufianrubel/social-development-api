@@ -1,14 +1,22 @@
 import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
 import { test } from "node:test";
 import { createAuth } from "../src/config/auth.js";
 import { resolveApiPrefix } from "../src/config/api-prefix.js";
 
 const validEnvironment = {
-  BETTER_AUTH_SECRET: "a".repeat(32),
+  BETTER_AUTH_SECRET: randomBytes(32).toString("base64url"),
   BETTER_AUTH_URL: "http://localhost:8000",
   CLIENT_URL: "http://localhost:3000",
   API_PREFIX: "/api/v1",
 };
+
+test("enables Better Auth JWT and JWKS endpoints", () => {
+  const auth = createAuth({ collection() {} }, validEnvironment);
+
+  assert.equal(typeof auth.api.getToken, "function");
+  assert.equal(typeof auth.api.getJwks, "function");
+});
 
 test("requires a connected MongoDB database and secure auth secret", () => {
   assert.throws(

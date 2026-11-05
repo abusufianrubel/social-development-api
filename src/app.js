@@ -8,8 +8,13 @@ import {
 } from "./middleware/error.middleware.js";
 import { sendSuccess } from "./utils/api-response.js";
 import { resolveApiPrefix } from "./config/api-prefix.js";
+import createUserRouter from "./routes/user.routes.js";
 
-export const createApp = (authHandler, apiPrefix = resolveApiPrefix()) => {
+export const createApp = (
+  authHandler,
+  apiPrefix = resolveApiPrefix(),
+  { authenticate } = {}
+) => {
   const app = express();
 
   app.use(helmet());
@@ -30,6 +35,10 @@ export const createApp = (authHandler, apiPrefix = resolveApiPrefix()) => {
   app.use(express.urlencoded({ extended: true }));
 
   app.use(apiPrefix, healthRouter);
+
+  if (authenticate) {
+    app.use(apiPrefix, createUserRouter(authenticate));
+  }
 
   app.get(apiPrefix, (_req, res) =>
     sendSuccess(res, {
