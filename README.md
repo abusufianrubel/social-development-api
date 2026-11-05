@@ -1,4 +1,4 @@
-
+ 
 # 🌱 Social Development Events Platform — Backend
 
 A RESTful backend application for a community-driven social development events platform. It provides APIs for event management, user participation, authentication, and profile management.
@@ -149,8 +149,6 @@ For example:
 npm run dev
 ```
 
-If a development script is not configured, add one appropriate to the existing project setup.
-
 The local API server should be available at:
 
 ```text
@@ -205,13 +203,76 @@ Successful requests return `201 Created` with `{ "success": true, "message": "Ev
 
 ## 🔐 Authentication & Authorization
 
-Better Auth handles authentication using the MongoDB adapter and the `BETTER_AUTH_SECRET` environment variable. Email/password authentication is enabled. The API handler is available under `${API_PREFIX}/auth/*`, and the frontend origin from `CLIENT_URL` is trusted. Session lifetime is seven days, with refresh after one day. Google and GitHub sign-in can be enabled by configuring the matching OAuth client ID and secret.
+Better Auth handles authentication using the MongoDB adapter and the `BETTER_AUTH_SECRET` environment variable. Email/password authentication is enabled. The API handler is available under `${API_PREFIX}/auth/*`, and the frontend origin from `CLIENT_URL` is trusted. Session lifetime is seven days, with refresh after one day.
+
+### Google OAuth setup
+
+Google sign-in is enabled automatically when both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are present in the server environment. The existing `src/config/auth.js` configuration registers Google as a Better Auth social provider; no custom Express controller or separate Google login route is required.
+
+1. Create an OAuth 2.0 client in Google Cloud Console. Choose the application type appropriate for a web server.
+2. Add the following **Authorized redirect URI** to the Google OAuth client:
+   - Local: `http://localhost:8000/api/v1/auth/callback/google`
+   - Production: `https://YOUR_BACKEND_DOMAIN/api/v1/auth/callback/google`
+3. Copy the Google client ID and client secret into the backend `.env` file as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+4. Set `BETTER_AUTH_URL` to the backend's public origin and `CLIENT_URL` to the exact frontend origin. The frontend callback URL supplied in the sign-in request must use this trusted frontend origin.
+5. Restart the backend after changing environment variables.
+
+The Google **Authorized redirect URI** is the backend Better Auth callback endpoint. It is not the frontend `callbackURL` supplied in the API request. Do not add a trailing slash or substitute the frontend URL in Google's redirect URI list.
+
+### Start Google sign-in
+
+Endpoint:
+
+```http
+POST /api/v1/auth/sign-in/social
+Content-Type: application/json
+```
+
+Request body:
+
+```json
+{
+  "provider": "google",
+  "callbackURL": "http://localhost:3000/auth/callback",
+  "errorCallbackURL": "http://localhost:3000/login?error=google",
+  "disableRedirect": true
+}
+```
+
+With `disableRedirect: true`, Better Auth returns a JSON response containing an authorization `url` and `redirect: false`. The frontend should navigate the browser to that returned URL to continue Google's OAuth flow. If automatic redirects are preferred, omit `disableRedirect`; Better Auth initiates the redirect itself.
+
+Example request:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/sign-in/social \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:3000" \
+  -d '{
+    "provider": "google",
+    "callbackURL": "http://localhost:3000/auth/callback",
+    "errorCallbackURL": "http://localhost:3000/login?error=google",
+    "disableRedirect": true
+  }'
+```
+
+Example response shape (the authorization URL is generated dynamically):
+
+```json
+{
+  "url": "https://accounts.google.com/o/oauth2/v2/auth?...",
+  "redirect": false
+}
+```
+
+After Google authenticates the user, Google redirects to the backend callback URI. Better Auth validates the OAuth response, creates or retrieves the user and session, and redirects to the frontend callback URL. Keep the Better Auth session cookie by making browser requests with credentials included. For protected Express APIs, exchange the Better Auth session for the short-lived JWT at `GET /api/v1/auth/token`, then send that JWT as `Authorization: Bearer <JWT>`.
+
+### JWT authorization
 
 The Better Auth JWT plugin is configured to issue 15-minute EdDSA-signed JWTs. Its public signing keys are served at `${API_PREFIX}/auth/jwks`; after Better Auth sign-in, request `${API_PREFIX}/auth/token` with the Better Auth session cookie to obtain an API JWT. Express protected routes accept only `Authorization: Bearer <JWT>` and validate the signature against the configured JWKS, `exp`, `iss`, `aud`, and `sub`. A Better Auth session cookie is not itself accepted as an API bearer token.
 
 The JWT issuer and audience default to `BETTER_AUTH_URL`. Set `BETTER_AUTH_JWT_ISSUER` or `BETTER_AUTH_JWT_AUDIENCE` only when the JWT issuer/audience is configured to the same values in Better Auth. `BETTER_AUTH_JWKS_URL` can override the computed JWKS URL and must point to the Better Auth public key set. Production auth and JWKS URLs must use HTTPS.
 
-Common Better Auth endpoints include `POST /api/v1/auth/sign-up/email`, `POST /api/v1/auth/sign-in/email`, `GET /api/v1/auth/get-session`, `GET /api/v1/auth/token`, and `POST /api/v1/auth/sign-out`. Provider login uses `POST /api/v1/auth/sign-in/social` with a configured provider and callback URL. Use `credentials: "include"` from browser clients for Better Auth cookie-based sign-in/token exchange; send the returned JWT as a bearer token when calling protected Express APIs.
+Common Better Auth endpoints include `POST /api/v1/auth/sign-up/email`, `POST /api/v1/auth/sign-in/email`, `POST /api/v1/auth/sign-in/social`, `GET /api/v1/auth/get-session`, `GET /api/v1/auth/token`, and `POST /api/v1/auth/sign-out`. Use `credentials: "include"` from browser clients for Better Auth cookie-based sign-in/token exchange; send the returned JWT as a bearer token when calling protected Express APIs.
 
 ### Postman JWT verification
 
@@ -220,7 +281,7 @@ Import [`docs/postman/better-auth-jwt.postman_collection.json`](./docs/postman/b
 Authentication features include:
 
 - Email and password authentication.
-- Google or GitHub social authentication.
+- Google or GitHub social authentication when configured.
 - MongoDB adapter integration.
 - JWT-based API authentication through Better Auth's JWKS.
 - Protected API route `GET /api/v1/users/me`.
@@ -295,6 +356,7 @@ Before deployment, verify:
 
 - MongoDB connection.
 - Authentication functionality.
+- Google OAuth using real Google credentials and the configured redirect URI.
 - JWT validation.
 - Public and protected API access.
 - Event creation and retrieval.
@@ -322,9 +384,10 @@ Before deployment:
 2. Connect the production MongoDB database.
 3. Configure authentication URLs and secrets.
 4. Configure the frontend origin in CORS.
-5. Verify all API endpoints.
-6. Test authentication and authorization.
-7. Check production logs for errors.
+5. Set the Google OAuth production redirect URI to the deployed backend's Better Auth callback URL.
+6. Verify all API endpoints.
+7. Test authentication and authorization.
+8. Check production logs for errors.
 
 **Live API URL:** [Add Your Deployed Backend URL]
 
