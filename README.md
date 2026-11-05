@@ -178,7 +178,7 @@ The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping a
 | GET | `/api/v1/events` | Public | Get upcoming events |
 | GET | `/api/v1/events/recent` | Public | Get six recent upcoming events |
 | GET | `/api/v1/events/:id` | Public | Get event details |
-| POST | `/api/v1/events` | Protected | Create an event |
+| POST | `/api/v1/events` | Protected | Create an event (implemented) |
 | PATCH | `/api/v1/events/:id` | Protected | Update an event |
 | DELETE | `/api/v1/events/:id` | Protected | Delete an event |
 | GET | `/api/v1/events/my-events` | Protected | Get user's created events |
@@ -197,7 +197,11 @@ The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping a
 | GET | `/api/v1/users/me` | Bearer JWT | Return the verified caller identity (implemented) |
 | PATCH | `/api/v1/users/me` | Bearer JWT | Update current user profile (planned) |
 
-The Events, Participation, and profile-update endpoints above are proposed and are not implemented yet.
+Only `POST /api/v1/events` and `GET /api/v1/users/me` are implemented from these API tables. The remaining Events, Participation, and profile endpoints are proposed and are not implemented yet.
+
+Event creation requires a Bearer JWT and a JSON body containing `title`, `description`, `eventType`, `thumbnail`, `location`, and `eventDate` (an ISO-8601 timestamp with timezone). The event date must be in the future, and the thumbnail must be an HTTP(S) URL. Creator identity and `createdAt`/`updatedAt` timestamps are assigned server-side; client-supplied creator fields are rejected.
+
+Successful requests return `201 Created` with `{ "success": true, "message": "Event created successfully", "data": { "event": ... } }`. Invalid bodies return `400` with field-level validation errors.
 
 ## 🔐 Authentication & Authorization
 

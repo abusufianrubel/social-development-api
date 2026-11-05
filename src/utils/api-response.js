@@ -17,9 +17,16 @@ export const sendSuccess = (
 
 export const sendError = (
   res,
-  { statusCode = 500, message = "Internal server error" } = {}
-) =>
-  res.status(statusCode).json({
+  { statusCode = 500, message = "Internal server error", errors } = {}
+) => {
+  const response = {
     success: false,
     message,
-  });
+  };
+
+  if (errors !== undefined) {
+    response.errors = errors;
+  }
+
+  return res.status(statusCode).json(response);
+};

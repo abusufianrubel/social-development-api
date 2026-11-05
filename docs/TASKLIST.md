@@ -83,22 +83,22 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.1 Create Event
 
-- [ ]Create event model or database operations.
-- [ ]Create event controller.
-- [ ]Create event service.
-- [ ]Create event routes.
-- [ ]Implement `POST /api/events`.
-- [ ]Validate required fields.
-- [ ]Validate event title.
-- [ ]Validate event description.
-- [ ]Validate event type.
-- [ ]Validate thumbnail URL.
-- [ ]Validate event location.
-- [ ]Validate future event date.
-- [ ]Retrieve creator identity from authenticated context.
-- [ ]Generate server-side timestamps.
-- [ ]Save event in MongoDB.
-- [ ]Return created event response.
+- [x]Create event model or database operations.
+- [x]Create event controller.
+- [x]Create event service.
+- [x]Create event routes.
+- [x]Implement `POST /api/v1/events`.
+- [x]Validate required fields.
+- [x]Validate event title.
+- [x]Validate event description.
+- [x]Validate event type.
+- [x]Validate thumbnail URL.
+- [x]Validate event location.
+- [x]Validate future event date.
+- [x]Retrieve creator identity from authenticated context.
+- [x]Generate server-side timestamps.
+- [x]Save event in MongoDB.
+- [x]Return created event response.
 
 ### 6.2 Get Upcoming Events
 
@@ -285,10 +285,10 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### Event Testing
 
-- [ ]Test event creation.
-- [ ]Test missing required fields.
-- [ ]Test invalid event date.
-- [ ]Test past event rejection.
+- [x]Test event creation.
+- [x]Test missing required fields.
+- [x]Test invalid event date.
+- [x]Test past event rejection.
 - [ ]Test upcoming event retrieval.
 - [ ]Test recent six-event retrieval.
 - [ ]Test event details.
