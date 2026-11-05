@@ -132,67 +132,67 @@ Important: Use the actual Better Auth JWT configuration. Do not assume the defau
 
 ### 6.5 Update Event
 
-- [ ]Implement `PATCH /api/events/:id`.
-- [ ]Verify authenticated user.
-- [ ]Verify event existence.
-- [ ]Verify event ownership.
-- [ ]Validate updated fields.
-- [ ]Validate updated event date.
-- [ ]Prevent creator identity modification.
-- [ ]Update `updatedAt`.
-- [ ]Return updated event.
-- [ ]Handle unauthorized modification.
+- [x]Implement `PATCH /api/v1/events/:id`.
+- [x]Verify authenticated user.
+- [x]Verify event existence.
+- [x]Verify event ownership.
+- [x]Validate updated fields.
+- [x]Validate updated event date.
+- [x]Prevent creator identity modification.
+- [x]Update `updatedAt`.
+- [x]Return updated event.
+- [x]Handle unauthorized modification.
 
 ### 6.6 Delete Event
 
-- [ ]Implement `DELETE /api/events/:id`.
-- [ ]Verify authentication.
-- [ ]Verify event existence.
-- [ ]Verify event ownership.
-- [ ]Delete authorized event.
-- [ ]Handle associated participation records.
-- [ ]Return deletion confirmation.
-- [ ]Prevent unauthorized deletion.
+- [x]Implement `DELETE /api/v1/events/:id`.
+- [x]Verify authentication.
+- [x]Verify event existence.
+- [x]Verify event ownership.
+- [x]Delete authorized event.
+- [x]Handle associated participation records transactionally.
+- [x]Return deletion confirmation.
+- [x]Prevent unauthorized deletion.
 
 ## 7. Event Participation System
 
 ### 7.1 Join Event
 
-- [ ]Create participation model.
-- [ ]Create participation controller.
-- [ ]Create participation service.
-- [ ]Create participation routes.
-- [ ]Implement `POST /api/joins`.
-- [ ]Verify authenticated user.
-- [ ]Validate event ID.
-- [ ]Verify event existence.
-- [ ]Reject past events.
-- [ ]Prevent duplicate participation.
-- [ ]Store event reference.
-- [ ]Store authenticated user reference.
-- [ ]Generate participation timestamp.
-- [ ]Save participation record.
-- [ ]Return success response.
+- [x]Create participation model.
+- [x]Create participation controller.
+- [x]Create participation service.
+- [x]Create participation routes.
+- [x]Implement `POST /api/v1/joins`.
+- [x]Verify authenticated user.
+- [x]Validate event ID.
+- [x]Verify event existence.
+- [x]Reject past events.
+- [x]Prevent duplicate participation using the unique compound index.
+- [x]Store event reference.
+- [x]Store authenticated user reference.
+- [x]Generate participation timestamp.
+- [x]Save participation record.
+- [x]Return success response.
 
 ### 7.2 Get Joined Events
 
-- [ ]Implement `GET /api/joins/my-events`.
-- [ ]Retrieve authenticated user ID.
-- [ ]Find participation records.
-- [ ]Retrieve associated event information.
-- [ ]Sort events by event date.
-- [ ]Handle empty participation records.
-- [ ]Return joined event information.
+- [x]Implement `GET /api/v1/joins/my-events`.
+- [x]Retrieve authenticated user ID.
+- [x]Find participation records.
+- [x]Retrieve associated event information.
+- [x]Sort events by event date.
+- [x]Handle empty participation records.
+- [x]Return joined event information.
 
 ## 8. User-Created Events
 
-- [ ]Implement `GET /api/v1/events/my-events`.
-- [ ]Retrieve authenticated user identity.
-- [ ]Find events created by the current user.
-- [ ]Sort created events.
-- [ ]Support pagination if needed.
-- [ ]Return only owned events.
-- [ ]Handle empty results.
+- [x]Implement `GET /api/v1/events/my-events`.
+- [x]Retrieve authenticated user identity.
+- [x]Find events created by the current user.
+- [x]Sort created events.
+- [x]Support pagination.
+- [x]Return only owned events.
+- [x]Handle empty results.
 
 ## 9. User Profile Management
 

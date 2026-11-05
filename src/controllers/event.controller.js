@@ -39,3 +39,37 @@ export const getEventByIdController = (eventService) => async (req, res) => {
     data: { event },
   });
 };
+
+export const updateEventController = (eventService) => async (req, res) => {
+  const event = await eventService.updateEvent(
+    req.params.id,
+    req.validatedBody,
+    req.auth.user
+  );
+
+  return sendSuccess(res, {
+    message: "Event updated successfully",
+    data: { event },
+  });
+};
+
+export const deleteEventController = (eventService) => async (req, res) => {
+  const result = await eventService.deleteEvent(req.params.id, req.auth.user);
+
+  return sendSuccess(res, {
+    message: "Event deleted successfully",
+    data: result,
+  });
+};
+
+export const getMyEventsController = (eventService) => async (req, res) => {
+  const result = await eventService.getMyEvents(
+    req.auth.user,
+    req.validatedQuery
+  );
+
+  return sendSuccess(res, {
+    message: "Your created events retrieved successfully",
+    data: result,
+  });
+};
