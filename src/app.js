@@ -13,24 +13,46 @@ import createUserRouter from "./routes/user.routes.js";
 import createEventRouter from "./routes/event.routes.js";
 import createJoinRouter from "./routes/join.routes.js";
 
+const buildAllowedOrigins = () => {
+  const origins = (process.env.CLIENT_URL ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+    .map(normalizeOrigin);
+
+  if (process.env.NODE_ENV !== "production") {
+    origins.push("http://localhost:3000", "http://127.0.0.1:3000");
+  }
+
+  return [...new Set(origins)];
+};
+
 export const createApp = (
   authHandler,
   apiPrefix = resolveApiPrefix(),
   { authenticate, userService, eventService, participationService } = {}
 ) => {
   const app = express();
-  const clientOrigin = process.env.CLIENT_URL
-    ? normalizeOrigin(process.env.CLIENT_URL)
-    : undefined;
+  const allowedOrigins = buildAllowedOrigins();
 
-  app.use(helmet());
+  const corsOptions = {
+    origin(origin, callback) {
+      // No Origin header = curl, Postman, server-to-server
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      // Omit CORS headers instead of throwing a 500
+      return callback(null, false);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+  };
 
-  app.use(
-    cors({
-      origin: clientOrigin,
-      credentials: true,
-    })
-  );
+  // CORS first, so preflights are answered before anything else can reject them
+  app.use(cors(corsOptions));
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 
   if (authHandler) {
     app.all(`${apiPrefix}/auth`, authHandler);
