@@ -4,6 +4,7 @@ import { APIError, createAuthMiddleware } from "better-auth/api";
 import { jwt } from "better-auth/plugins";
 import { resolveApiPrefix } from "./api-prefix.js";
 import { resolveJwtConfiguration } from "./jwt.js";
+import { normalizeOrigin } from "./origin.js";
 
 const getSocialProviders = (env) => {
   const providers = {};
@@ -58,7 +59,7 @@ export const createAuth = (database, env = process.env) => {
     baseURL: env.BETTER_AUTH_URL,
     basePath: `${resolveApiPrefix(env)}/auth`,
     secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: [env.CLIENT_URL],
+    trustedOrigins: [normalizeOrigin(env.CLIENT_URL)],
     // The frontend and API may be deployed on different origins.
     // SameSite=None is required for credentialed cross-site fetches;
     // Secure is mandatory with SameSite=None and is enabled only in production.

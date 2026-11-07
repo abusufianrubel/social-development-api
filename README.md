@@ -136,6 +136,10 @@ GITHUB_CLIENT_SECRET=
 ```
 
 Configure additional variables if required by your authentication provider.
+For Vercel deployments, the `api/[...path].js` function initializes the same
+database-backed authenticated API as the local server. Set
+`CLIENT_URL=https://social-development-web.vercel.app` to the frontend origin
+without a path; a trailing slash is accepted and normalized.
 
 **Security Notice:** Never commit real database credentials, authentication secrets, private keys, or tokens to GitHub. Generate `BETTER_AUTH_SECRET` with `npx auth secret`; production requires at least 32 characters. Google and GitHub OAuth are optional; configure both corresponding client ID and secret variables to enable a provider.
 

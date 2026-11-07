@@ -140,6 +140,42 @@ test("forwards Better Auth requests before Express body parsing", async () => {
   assert.equal(body.body, JSON.stringify({ email: "person@example.com" }));
 });
 
+test("normalizes the configured frontend origin for CORS", async () => {
+  const previousClientUrl = process.env.CLIENT_URL;
+  process.env.CLIENT_URL = "https://social-development-web.vercel.app/";
+  const corsApp = createApp();
+  const corsServer = corsApp.listen(0);
+
+  await new Promise((resolve) => corsServer.once("listening", resolve));
+  const corsBaseUrl = `http://127.0.0.1:${corsServer.address().port}`;
+
+  try {
+    const response = await fetch(`${corsBaseUrl}/api/v1/health`, {
+      method: "OPTIONS",
+      headers: {
+        Origin: "https://social-development-web.vercel.app",
+        "Access-Control-Request-Method": "GET",
+      },
+    });
+
+    assert.equal(response.status, 204);
+    assert.equal(
+      response.headers.get("access-control-allow-origin"),
+      "https://social-development-web.vercel.app"
+    );
+    assert.equal(response.headers.get("access-control-allow-credentials"), "true");
+  } finally {
+    await new Promise((resolve, reject) => {
+      corsServer.close((error) => (error ? reject(error) : resolve()));
+    });
+    if (previousClientUrl === undefined) {
+      delete process.env.CLIENT_URL;
+    } else {
+      process.env.CLIENT_URL = previousClientUrl;
+    }
+  }
+});
+
 test("mounts the API root and auth handler under a custom API prefix", async () => {
   const customPrefixApp = createApp(
     (_req, res) => res.status(200).json({ success: true }),

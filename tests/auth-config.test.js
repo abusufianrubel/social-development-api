@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { test } from "node:test";
 import { createAuth } from "../src/config/auth.js";
 import { resolveApiPrefix } from "../src/config/api-prefix.js";
+import { normalizeOrigin } from "../src/config/origin.js";
 
 const validEnvironment = {
   BETTER_AUTH_SECRET: randomBytes(32).toString("base64url"),
@@ -52,8 +53,16 @@ test("requires both credentials when an OAuth provider is partially configured",
 });
 
 test("returns a Google authorization URL when Google OAuth is configured", async () => {
+  const database = {
+    collection: () => ({
+      createIndex: async () => "verification-index",
+      insertOne: async () => ({
+        insertedId: { toString: () => "verification-id" },
+      }),
+    }),
+  };
   const auth = createAuth(
-    { collection() {} },
+    database,
     {
       ...validEnvironment,
       GOOGLE_CLIENT_ID: "google-test-client-id",
@@ -102,5 +111,16 @@ test("normalizes and validates the common API prefix", () => {
   assert.throws(
     () => resolveApiPrefix({ API_PREFIX: "/" }),
     /must include a path segment/
+  );
+});
+
+test("normalizes a frontend URL to its HTTP origin", () => {
+  assert.equal(
+    normalizeOrigin("https://social-development-web.vercel.app/"),
+    "https://social-development-web.vercel.app"
+  );
+  assert.throws(
+    () => normalizeOrigin("https://example.com/register"),
+    /must be an HTTP\(S\) origin/
   );
 });

@@ -8,6 +8,7 @@ import {
 } from "./middleware/error.middleware.js";
 import { sendSuccess } from "./utils/api-response.js";
 import { resolveApiPrefix } from "./config/api-prefix.js";
+import { normalizeOrigin } from "./config/origin.js";
 import createUserRouter from "./routes/user.routes.js";
 import createEventRouter from "./routes/event.routes.js";
 import createJoinRouter from "./routes/join.routes.js";
@@ -18,12 +19,15 @@ export const createApp = (
   { authenticate, userService, eventService, participationService } = {}
 ) => {
   const app = express();
+  const clientOrigin = process.env.CLIENT_URL
+    ? normalizeOrigin(process.env.CLIENT_URL)
+    : undefined;
 
   app.use(helmet());
 
   app.use(
     cors({
-      origin: process.env.CLIENT_URL,
+      origin: clientOrigin,
       credentials: true,
     })
   );
