@@ -169,6 +169,7 @@ replace `/api/v1` with its configured value.
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
+| GET | `/` | Public | Confirm the API is running |
 | GET | `/api/v1/health` | Public | Report service health, uptime, timestamp, and MongoDB dependency health |
 
 The health endpoint returns HTTP `200` when MongoDB responds to a bounded ping and HTTP `503` when the dependency is unavailable. Its JSON response includes an overall `status` (`healthy` or `unhealthy`), service name, ISO-8601 `timestamp`, process `uptime` in seconds, and per-dependency status. It does not expose connection details or error messages.

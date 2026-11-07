@@ -127,6 +127,17 @@ test("returns a consistent JSON response for unknown routes", async () => {
   });
 });
 
+test("returns the API status message at the service root", async () => {
+  const response = await fetch(`${baseUrl}/`);
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, {
+    success: true,
+    message: "Social Development API is running",
+  });
+});
+
 test("forwards Better Auth requests before Express body parsing", async () => {
   const response = await fetch(`${authBaseUrl}/api/v1/auth/sign-in/email`, {
     method: "POST",

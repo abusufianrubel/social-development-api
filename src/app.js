@@ -54,6 +54,12 @@ export const createApp = (
     })
   );
 
+  app.get("/", (_req, res) =>
+    sendSuccess(res, {
+      message: "Social Development API is running",
+    })
+  );
+
   app.use(notFoundHandler);
   app.use(errorHandler);
 
